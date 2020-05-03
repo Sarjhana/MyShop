@@ -16,64 +16,70 @@ class ProductItem extends StatelessWidget {
    final authData = Provider.of<Auth>(context, listen: false);
 
     return ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(10),
+      child: GridTile(
         child: GestureDetector(
-          onTap: ()  {
+          onTap: () {
             Navigator.of(context).pushNamed(
               ProductDetailScreen.routeName,
               arguments: product.id,
             );
           },
-          child: GridTile(
-            child: Image.network(
-              product.imageUrl, 
+          child: Hero(
+            tag: product.id,
+            child: FadeInImage(
+              placeholder: AssetImage('images/product-placeholder.png'),
+              image: NetworkImage(product.imageUrl),
               fit: BoxFit.cover,
-              ),
-              footer: GridTileBar(
-                backgroundColor: Colors.black87,
-                leading: Consumer<Product>(
-                  builder: (ctx, product, _) => 
-                    IconButton(
-                      icon: Icon(product.isFavourite ? Icons.favorite : Icons.favorite_border),
-                      iconSize: 20,
-                      color: Theme.of(context).accentColor,
-                      onPressed: () {
-                        product.toggleFavouriteStatus(authData.token, authData.userId);
-                      },
-                    ),
-                  ),
-                trailing: IconButton(
-                  onPressed: (){
-                    cart.addItem(product.id, product.price, product.title);
-                    Scaffold.of(context).hideCurrentSnackBar();
-                    Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text(
-                        'Added Item to Cart',
-                       // textAlign: TextAlign.center,
-                        ),
-                      duration: Duration(seconds: 2),
-                      action: SnackBarAction(
-                        label: 'UNDO',
-                        onPressed: () {
-                          cart.removeSingleItem(product.id);
-                        },
-                      ),
-                    ));
-                  },
-                  icon: Icon(Icons.shopping_cart),
-                  iconSize: 20,
-                  color: Theme.of(context).accentColor,
-                  ),
-                title: FittedBox(
+            ),
+          ),
+        ),
+        footer: GridTileBar(
+          backgroundColor: Colors.black87,
+          leading: Consumer<Product>(
+            builder: (ctx, product, _) => 
+            IconButton(
+              icon: Icon(product.isFavourite ? Icons.favorite : Icons.favorite_border),
+              iconSize: 20,
+              color: Theme.of(context).accentColor,
+              onPressed: () {
+                product.toggleFavouriteStatus(authData.token, authData.userId);
+              },
+            ),
+          ),
+          title: FittedBox(
                     fit: BoxFit.fill,
                     child: Text(
                     product.title,
                     textAlign: TextAlign.center,
                     ),
                 ),
-              ),
+          trailing: IconButton(
+            icon: Icon(
+              Icons.shopping_cart,
+            ),
+            onPressed: () {
+              cart.addItem(product.id, product.price, product.title);
+              Scaffold.of(context).hideCurrentSnackBar();
+              Scaffold.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Added item to cart!',
+                  ),
+                  duration: Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: 'UNDO',
+                    onPressed: () {
+                      cart.removeSingleItem(product.id);
+                    },
+                  ),
+                ),
+              );
+            },
+            color: Theme.of(context).accentColor,
           ),
         ),
+      ),
     );
   }
 }
